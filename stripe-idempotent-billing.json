@@ -1,0 +1,241 @@
+{
+  "name": "stripe-idempotent-billing",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "billing-event",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "664d8084-aea8-4d13-9b8a-aee6fbd847c4",
+      "name": "Webhook",
+      "webhookId": "b71f87b6-2cda-4c94-abff-867589ffa270"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "f7a48f90-e6ca-4039-9f5a-5f962dfa5b1e",
+              "leftValue": "={{ $json.event_id }}",
+              "rightValue": 1,
+              "operator": {
+                "type": "string",
+                "operation": "exists",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        704,
+        160
+      ],
+      "id": "195640cc-89ad-4d19-b771-7a7cc420673a",
+      "name": "If1"
+    },
+    {
+      "parameters": {
+        "schema": {
+          "__rl": true,
+          "mode": "list",
+          "value": "public"
+        },
+        "table": {
+          "__rl": true,
+          "value": "event_log",
+          "mode": "list",
+          "cachedResultName": "event_log"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "amount": "={{ $('Webhook').item.json.body.data.object.amount }}",
+            "event_id": "={{ $('Webhook').item.json.body.id }}"
+          },
+          "matchingColumns": [
+            "id"
+          ],
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "event_id",
+              "displayName": "event_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "payload",
+              "displayName": "payload",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "object",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "created_at",
+              "displayName": "created_at",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "dateTime",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "amount",
+              "displayName": "amount",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        944,
+        144
+      ],
+      "id": "64264628-a2cf-4151-b369-15139736e680",
+      "name": "Insert rows in a table1",
+      "credentials": {
+        "postgres": {
+          "id": "7IGpRF9xcH7oYorS",
+          "name": "Postgres account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "select",
+        "schema": {
+          "__rl": true,
+          "mode": "list",
+          "value": "public"
+        },
+        "table": {
+          "__rl": true,
+          "value": "event_log",
+          "mode": "list",
+          "cachedResultName": "event_log"
+        },
+        "returnAll": true,
+        "where": {
+          "values": [
+            {
+              "column": "event_id",
+              "value": "={{ $json.body.id }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        416,
+        176
+      ],
+      "id": "e573e8d0-3e78-4865-b021-6d710fdaba0f",
+      "name": "Select rows from a table",
+      "alwaysOutputData": true,
+      "executeOnce": false,
+      "credentials": {
+        "postgres": {
+          "id": "7IGpRF9xcH7oYorS",
+          "name": "Postgres account 2"
+        }
+      },
+      "onError": "continueRegularOutput"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Select rows from a table",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If1": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Insert rows in a table1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Select rows from a table": {
+      "main": [
+        [
+          {
+            "node": "If1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "02e66255-8069-44bd-a8d2-c6fc6990beda",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "323338559e0a1761bdc2132527a39459f12d5075d40f1899b103cd2d72e82c4a"
+  },
+  "id": "KWwgFyOw3SANkR5sFGWul",
+  "tags": []
+}
