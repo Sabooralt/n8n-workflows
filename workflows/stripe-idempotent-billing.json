@@ -185,6 +185,285 @@
         }
       },
       "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "authentication": "airtableOAuth2Api",
+        "operation": "create",
+        "base": {
+          "__rl": true,
+          "value": "app1zECHRHYZUX72A",
+          "mode": "list",
+          "cachedResultName": "Billing CRM",
+          "cachedResultUrl": "https://airtable.com/app1zECHRHYZUX72A"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblLO3o5Mh9HhJKxB",
+          "mode": "list",
+          "cachedResultName": "customers",
+          "cachedResultUrl": "https://airtable.com/app1zECHRHYZUX72A/tblLO3o5Mh9HhJKxB"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "amount": "={{ $('Webhook').item.json.body.data.object.amount }}",
+            "stripe_event": "={{ $('Webhook').item.json.body.id }}",
+            "Status": "Done",
+            "currency": "={{ $('Webhook').item.json.body.data.object.currency }}",
+            "email": "={{ $json.email }}",
+            "Full Name": "={{ $json.name }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "email",
+              "displayName": "email",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Full Name",
+              "displayName": "Full Name",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "amount",
+              "displayName": "amount",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "number",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "stripe_event",
+              "displayName": "stripe_event",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "Todo",
+                  "value": "Todo"
+                },
+                {
+                  "name": "In progress",
+                  "value": "In progress"
+                },
+                {
+                  "name": "Done",
+                  "value": "Done"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "currency",
+              "displayName": "currency",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Attachments",
+              "displayName": "Attachments",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "array",
+              "readOnly": false,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [
+        1520,
+        48
+      ],
+      "id": "61c3deae-8150-4ff4-bd19-f69700ae35b8",
+      "name": "Create a record",
+      "credentials": {
+        "airtableOAuth2Api": {
+          "id": "1J3W1Z7aTfCHG8WT",
+          "name": "Airtable Personal Access Token account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "customer",
+        "customerId": "={{ $('Webhook').item.json.body.data.object.customer }}"
+      },
+      "type": "n8n-nodes-base.stripe",
+      "typeVersion": 1,
+      "position": [
+        1360,
+        176
+      ],
+      "id": "764e678f-56ed-412a-a495-56c5cdef07a6",
+      "name": "Get a customer",
+      "credentials": {
+        "stripeApi": {
+          "id": "tXYtviiNpWBxiZ5A",
+          "name": "Stripe account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "databasePage",
+        "databaseId": {
+          "__rl": true,
+          "value": "2ff98d5e-f66e-8095-8ca6-d73c4635e014",
+          "mode": "list",
+          "cachedResultName": "Billing Logs",
+          "cachedResultUrl": "https://www.notion.so/2ff98d5ef66e80958ca6d73c4635e014"
+        },
+        "simple": false,
+        "propertiesUi": {
+          "propertyValues": [
+            {
+              "key": "Name|title",
+              "title": "={{ $json.fields[\"Full Name\"] }}"
+            },
+            {
+              "key": "email|email",
+              "emailValue": "={{ $json.fields.email }}"
+            },
+            {
+              "key": "amount|number",
+              "numberValue": "={{ ($json.fields.amount / 100) }}"
+            },
+            {
+              "key": "stripe_event|rich_text",
+              "textContent": "={{ $json.fields.stripe_event }}"
+            },
+            {
+              "key": "raw payload|rich_text",
+              "textContent": "={{ JSON.stringify($('Webhook').item.json.body.data) }}"
+            },
+            {
+              "key": "currency|rich_text",
+              "textContent": "={{ $json.fields.currency }}"
+            }
+          ]
+        },
+        "blockUi": {
+          "blockValues": [
+            {}
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2.2,
+      "position": [
+        1696,
+        48
+      ],
+      "id": "5350339a-3049-457d-a34f-d7a2945e4225",
+      "name": "Create a database page",
+      "credentials": {
+        "notionApi": {
+          "id": "eOM7OdmHs43VXkY6",
+          "name": "Notion account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "C0AEARTN4RW",
+          "mode": "list",
+          "cachedResultName": "all-n8n"
+        },
+        "text": "=New payment: ${{ ($('Webhook').item.json.body.data.object.amount / 100).toFixed(2) }}\nCustomer: {{ $('Get a customer').item.json.name }} - {{ $('Get a customer').item.json.email }}",
+        "otherOptions": {}
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.4,
+      "position": [
+        1904,
+        48
+      ],
+      "id": "dcbb1537-a54e-4ce0-8565-12567ba7467a",
+      "name": "Send a message",
+      "webhookId": "794402a4-006f-45ab-af63-318be3661418",
+      "credentials": {
+        "slackApi": {
+          "id": "ZFV91itTvmqHoGDb",
+          "name": "Slack account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "C0AEARTN4RW",
+          "mode": "list",
+          "cachedResultName": "all-n8n"
+        },
+        "text": "=Duplicate Entry: {{ $json.event_id }}",
+        "otherOptions": {}
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.4,
+      "position": [
+        688,
+        16
+      ],
+      "id": "3b5b5941-5bf0-442f-8667-919cdb6b30d3",
+      "name": "Send a message1",
+      "webhookId": "794402a4-006f-45ab-af63-318be3661418",
+      "credentials": {
+        "slackApi": {
+          "id": "ZFV91itTvmqHoGDb",
+          "name": "Slack account 2"
+        }
+      }
     }
   ],
   "pinData": {},
@@ -202,7 +481,13 @@
     },
     "If1": {
       "main": [
-        [],
+        [
+          {
+            "node": "Send a message1",
+            "type": "main",
+            "index": 0
+          }
+        ],
         [
           {
             "node": "Insert rows in a table1",
@@ -223,15 +508,64 @@
         ],
         []
       ]
+    },
+    "Insert rows in a table1": {
+      "main": [
+        [
+          {
+            "node": "Get a customer",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create a record": {
+      "main": [
+        [
+          {
+            "node": "Create a database page",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get a customer": {
+      "main": [
+        [
+          {
+            "node": "Create a record",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create a database page": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     }
   },
   "active": true,
   "settings": {
     "executionOrder": "v1",
     "binaryMode": "separate",
-    "availableInMCP": false
+    "availableInMCP": true,
+    "timeSavedMode": "fixed",
+    "errorWorkflow": "ZRnr3_ysXKzYPFVDq1JEg",
+    "timezone": "Asia/Karachi",
+    "callerPolicy": "workflowsFromSameOwner",
+    "timeSavedPerExecution": 10000
   },
-  "versionId": "02e66255-8069-44bd-a8d2-c6fc6990beda",
+  "versionId": "f8487fdc-230a-496e-889d-9be1d5beda14",
   "meta": {
     "templateCredsSetupCompleted": true,
     "instanceId": "323338559e0a1761bdc2132527a39459f12d5075d40f1899b103cd2d72e82c4a"
