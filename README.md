@@ -1,8 +1,11 @@
 n8n Workflow Collection
+
 This repository is a collection of professional automation workflows built with n8n. Each project focuses on solving specific backend engineering challenges, such as data consistency, fault tolerance, and API optimization.
 
 Table of Contents
+
 Stripe Idempotent Billing Automation
+
 General Prerequisites
 
 1. Stripe Idempotent Billing Automation
@@ -78,3 +81,4 @@ Import the file into your n8n instance.
 Configure the credential nodes with your own API keys.
 
 Activate the workflow and ensure your database/cache connections are reachable.
+
