@@ -29,10 +29,10 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.3,
       "position": [
-        448,
-        480
+        -112,
+        384
       ],
-      "id": "195640cc-89ad-4d19-b771-7a7cc420673a",
+      "id": "7e242dec-7308-4d49-9280-3640b02aedec",
       "name": "Normalize Stripe Payload"
     },
     {
@@ -52,7 +52,8 @@
           "mappingMode": "defineBelow",
           "value": {
             "amount": "={{ $('Listen to stripe events').item.json.body.data.object.amount }}",
-            "event_id": "={{ $('Listen to stripe events').item.json.body.id }}"
+            "event_id": "={{ $('Listen to stripe events').item.json.body.id }}",
+            "payload": "={{ $('Listen to stripe events').item.json.body }}"
           },
           "matchingColumns": [
             "id"
@@ -85,7 +86,7 @@
               "display": true,
               "type": "object",
               "canBeUsedToMatch": true,
-              "removed": true
+              "removed": false
             },
             {
               "id": "created_at",
@@ -115,40 +116,40 @@
       "type": "n8n-nodes-base.postgres",
       "typeVersion": 2.6,
       "position": [
-        672,
-        576
+        112,
+        480
       ],
-      "id": "64264628-a2cf-4151-b369-15139736e680",
+      "id": "d619fb0b-7130-42d5-9615-b56c97aaa93d",
       "name": "Insert stripe data into postgres",
       "retryOnFail": true,
       "maxTries": 5,
       "waitBetweenTries": 1500,
       "credentials": {
         "postgres": {
-          "id": "7IGpRF9xcH7oYorS",
-          "name": "Postgres account 2"
+          "id": "lVt5yKnqe6weOVkg",
+          "name": "Postgres account"
         }
       }
     },
     {
       "parameters": {
         "resource": "customer",
-        "customerId": "={{ $('Listen to stripe events').item.json.body.data.object.customer }}"
+        "customerId": "={{ $('Insert stripe data into postgres').item.json.payload.data.object.customer }}"
       },
       "type": "n8n-nodes-base.stripe",
       "typeVersion": 1,
       "position": [
-        896,
-        576
+        1008,
+        480
       ],
-      "id": "764e678f-56ed-412a-a495-56c5cdef07a6",
+      "id": "d3df04d3-dc9a-4040-9482-48f9aa45b5db",
       "name": "Get customer details",
-      "retryOnFail": false,
-      "maxTries": 5,
+      "retryOnFail": true,
+      "maxTries": 3,
       "waitBetweenTries": 1500,
       "credentials": {
         "stripeApi": {
-          "id": "tXYtviiNpWBxiZ5A",
+          "id": "jIbB1hfbavAYGevo",
           "name": "Stripe account"
         }
       },
@@ -203,17 +204,17 @@
       "type": "n8n-nodes-base.notion",
       "typeVersion": 2.2,
       "position": [
-        1344,
-        768
+        1680,
+        672
       ],
-      "id": "5350339a-3049-457d-a34f-d7a2945e4225",
+      "id": "9463556e-2501-4d53-a06f-3e48f1018173",
       "name": "Create notion entry",
-      "retryOnFail": false,
+      "retryOnFail": true,
       "maxTries": 5,
-      "waitBetweenTries": 1500,
+      "waitBetweenTries": 1000,
       "credentials": {
         "notionApi": {
-          "id": "eOM7OdmHs43VXkY6",
+          "id": "qRcPn57O6guFVwLT",
           "name": "Notion account"
         }
       },
@@ -234,18 +235,19 @@
       "type": "n8n-nodes-base.slack",
       "typeVersion": 2.4,
       "position": [
-        1344,
-        576
+        1680,
+        480
       ],
-      "id": "dcbb1537-a54e-4ce0-8565-12567ba7467a",
+      "id": "fa245150-7e5a-44c8-a10f-650e5d4a9fe9",
       "name": "Notify Slack",
       "webhookId": "794402a4-006f-45ab-af63-318be3661418",
       "credentials": {
         "slackApi": {
-          "id": "ZFV91itTvmqHoGDb",
-          "name": "Slack account 2"
+          "id": "yl6lEBo3BVXGLALv",
+          "name": "Slack account"
         }
-      }
+      },
+      "onError": "continueRegularOutput"
     },
     {
       "parameters": {
@@ -256,10 +258,10 @@
       "type": "n8n-nodes-base.webhook",
       "typeVersion": 2.1,
       "position": [
-        0,
-        480
+        -560,
+        384
       ],
-      "id": "664d8084-aea8-4d13-9b8a-aee6fbd847c4",
+      "id": "1be91424-04c3-4234-a787-1eb3d3fedb3c",
       "name": "Listen to stripe events",
       "webhookId": "b71f87b6-2cda-4c94-abff-867589ffa270"
     },
@@ -278,16 +280,16 @@
       "type": "n8n-nodes-base.slack",
       "typeVersion": 2.4,
       "position": [
-        672,
-        384
+        112,
+        288
       ],
-      "id": "3b5b5941-5bf0-442f-8667-919cdb6b30d3",
+      "id": "222927b9-2c69-42f0-ad1d-80981be1f5f1",
       "name": "Notify Slack about duplicate entry",
       "webhookId": "794402a4-006f-45ab-af63-318be3661418",
       "credentials": {
         "slackApi": {
-          "id": "ZFV91itTvmqHoGDb",
-          "name": "Slack account 2"
+          "id": "yl6lEBo3BVXGLALv",
+          "name": "Slack account"
         }
       }
     },
@@ -316,7 +318,7 @@
             "stripe_event": "={{ $json.event_id }}",
             "Status": "Done",
             "currency": "={{ $json.currency }}",
-            "email": "={{ $json.emaial }}",
+            "email": "={{ $json.email }}",
             "Full Name": "={{ $json.name }}"
           },
           "matchingColumns": [],
@@ -421,31 +423,31 @@
       "type": "n8n-nodes-base.airtable",
       "typeVersion": 2.1,
       "position": [
-        1344,
-        384
+        1680,
+        288
       ],
-      "id": "61c3deae-8150-4ff4-bd19-f69700ae35b8",
+      "id": "015ab6a4-04f6-4ee1-b6bf-bcd46ec1a6b9",
       "name": "Create Airtable Record",
-      "retryOnFail": false,
+      "retryOnFail": true,
       "maxTries": 5,
       "credentials": {
         "airtableOAuth2Api": {
-          "id": "1J3W1Z7aTfCHG8WT",
+          "id": "x4z5mVeVlVyj2uiz",
           "name": "Airtable Personal Access Token account"
         }
       },
       "onError": "continueRegularOutput",
-      "notes": "Insert pending syns into DB if Airtable fails"
+      "notes": "Insert pending sync into DB if Airtable fails"
     },
     {
       "parameters": {},
       "type": "n8n-nodes-base.noOp",
       "typeVersion": 1,
       "position": [
-        896,
-        384
+        336,
+        288
       ],
-      "id": "08483f4d-2b7e-4a66-a23c-178b9142d094",
+      "id": "b59b2733-9113-4a48-a077-931efb128bd8",
       "name": "No Operation, do nothing"
     },
     {
@@ -453,10 +455,10 @@
       "type": "n8n-nodes-base.noOp",
       "typeVersion": 1,
       "position": [
-        1568,
-        576
+        1904,
+        480
       ],
-      "id": "27547559-62e0-4b42-85cd-988a163e1319",
+      "id": "7af6c35c-6fc0-48bd-93b3-34a8ce1aa23b",
       "name": "No Operation, do nothing1"
     },
     {
@@ -487,17 +489,17 @@
       "type": "n8n-nodes-base.postgres",
       "typeVersion": 2.6,
       "position": [
-        224,
-        480
+        -336,
+        384
       ],
-      "id": "e573e8d0-3e78-4865-b021-6d710fdaba0f",
+      "id": "a6f072ad-b3b1-464f-872a-d9ee0b529f72",
       "name": "Idempotency Check",
       "alwaysOutputData": true,
       "executeOnce": false,
       "credentials": {
         "postgres": {
-          "id": "7IGpRF9xcH7oYorS",
-          "name": "Postgres account 2"
+          "id": "lVt5yKnqe6weOVkg",
+          "name": "Postgres account"
         }
       },
       "onError": "continueRegularOutput"
@@ -530,10 +532,10 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.3,
       "position": [
-        1792,
-        672
+        2128,
+        576
       ],
-      "id": "0fd68185-c412-4bc2-af78-d4d88438ea22",
+      "id": "483b741d-37ad-4151-bb93-a95108626947",
       "name": "If"
     },
     {
@@ -571,10 +573,10 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        1568,
-        384
+        1904,
+        288
       ],
-      "id": "009f9375-df6f-4e2f-938c-f674da2fb192",
+      "id": "0d0b264e-c399-47c4-9f5a-f01df8ab3322",
       "name": "Edit Fields"
     },
     {
@@ -612,10 +614,10 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        1568,
-        768
+        1904,
+        672
       ],
-      "id": "69876a26-0e40-49ae-b644-a13dc6d22991",
+      "id": "e64a3a3b-a041-4a05-a3eb-213fb5953996",
       "name": "Edit Fields1"
     },
     {
@@ -736,18 +738,18 @@
       "type": "n8n-nodes-base.postgres",
       "typeVersion": 2.6,
       "position": [
-        2464,
-        768
+        2800,
+        480
       ],
-      "id": "86f7aa01-3183-4d3a-a975-9e9a46de7e49",
+      "id": "d5b65583-e3c3-4130-9736-9749b2736e31",
       "name": "Insert failed node into DB for CRON retrying",
       "retryOnFail": true,
       "maxTries": 5,
       "waitBetweenTries": 2000,
       "credentials": {
         "postgres": {
-          "id": "7IGpRF9xcH7oYorS",
-          "name": "Postgres account 2"
+          "id": "lVt5yKnqe6weOVkg",
+          "name": "Postgres account"
         }
       },
       "onError": "continueRegularOutput"
@@ -763,10 +765,10 @@
       "type": "n8n-nodes-base.scheduleTrigger",
       "typeVersion": 1.3,
       "position": [
-        0,
-        64
+        -560,
+        -32
       ],
-      "id": "69391a02-a8cf-4f4c-82ad-7709887f45b3",
+      "id": "da13e09b-71d7-4e15-9009-e577772ca6f4",
       "name": "Schedule Trigger",
       "retryOnFail": false,
       "maxTries": 5
@@ -901,16 +903,16 @@
       "type": "n8n-nodes-base.airtable",
       "typeVersion": 2.1,
       "position": [
-        672,
-        -32
+        336,
+        -128
       ],
-      "id": "aa9e75cb-5c0a-4566-bdf2-15d44d76f0e0",
+      "id": "146f7289-12b4-4941-bf9f-8c00b1c82f7a",
       "name": "Create Airtable Record1",
       "retryOnFail": true,
       "maxTries": 5,
       "credentials": {
         "airtableOAuth2Api": {
-          "id": "1J3W1Z7aTfCHG8WT",
+          "id": "x4z5mVeVlVyj2uiz",
           "name": "Airtable Personal Access Token account"
         }
       },
@@ -928,8 +930,7 @@
         "table": {
           "__rl": true,
           "value": "pending_sync",
-          "mode": "list",
-          "cachedResultName": "pending_sync"
+          "mode": "list"
         },
         "where": {
           "values": [
@@ -944,15 +945,15 @@
       "type": "n8n-nodes-base.postgres",
       "typeVersion": 2.6,
       "position": [
-        224,
-        64
+        -336,
+        -32
       ],
-      "id": "88b28a8e-0fec-4040-b5d1-c46b987adf5e",
+      "id": "e7ab1a4b-5633-4c77-8d04-72347c27e290",
       "name": "Select rows from a table",
       "credentials": {
         "postgres": {
-          "id": "7IGpRF9xcH7oYorS",
-          "name": "Postgres account 2"
+          "id": "lVt5yKnqe6weOVkg",
+          "name": "Postgres account"
         }
       }
     },
@@ -1011,10 +1012,10 @@
       "type": "n8n-nodes-base.switch",
       "typeVersion": 3.4,
       "position": [
-        448,
-        64
+        112,
+        -32
       ],
-      "id": "797c8ceb-44e2-4656-88d1-83c05ca40663",
+      "id": "17bc9aa1-225c-47ee-a810-71c7e95f1a44",
       "name": "Switch"
     },
     {
@@ -1032,7 +1033,7 @@
           "propertyValues": [
             {
               "key": "Name|title",
-              "title": "={{ $json.payload.name }}"
+              "title": "={{ $json.pay1load.name }}"
             },
             {
               "key": "email|email",
@@ -1066,17 +1067,17 @@
       "type": "n8n-nodes-base.notion",
       "typeVersion": 2.2,
       "position": [
-        672,
-        160
+        336,
+        64
       ],
-      "id": "7fb5c419-4607-4b3f-843b-edffd2946db1",
+      "id": "2c7297e9-90b8-41e4-9b82-86b5e30d70ca",
       "name": "Create notion entry1",
-      "retryOnFail": true,
+      "retryOnFail": false,
       "maxTries": 5,
       "waitBetweenTries": 1000,
       "credentials": {
         "notionApi": {
-          "id": "eOM7OdmHs43VXkY6",
+          "id": "qRcPn57O6guFVwLT",
           "name": "Notion account"
         }
       },
@@ -1089,13 +1090,13 @@
             {
               "id": "aabc3c7d-8df7-4238-a988-6916539dd931",
               "name": "email",
-              "value": "={{ $json.email }}",
+              "value": "={{ $json.customer.email }}",
               "type": "string"
             },
             {
               "id": "029b0ac2-d212-4f9d-9dd9-12b924191422",
               "name": "name",
-              "value": "={{ $json.name }}",
+              "value": "={{ $json.customer.name }}",
               "type": "string"
             },
             {
@@ -1135,57 +1136,22 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        1120,
-        576
+        1456,
+        480
       ],
-      "id": "90fd4448-56cd-4a63-910f-b260f159897b",
+      "id": "72396355-3795-459e-86ef-dc30e1f0bbb8",
       "name": "Edit Fields2"
     },
     {
-      "parameters": {
-        "content": "ToDO: \n\nAdd stripe sintur on stipe events\n\nadd retris\n\nimplement redis before get customer details\n"
-      },
-      "type": "n8n-nodes-base.stickyNote",
-      "position": [
-        1312,
-        32
-      ],
-      "typeVersion": 1,
-      "id": "285342de-ab11-4976-9bb4-cd4b85120076",
-      "name": "Sticky Note"
-    },
-    {
       "parameters": {},
       "type": "n8n-nodes-base.noOp",
       "typeVersion": 1,
       "position": [
-        2464,
-        576
+        2800,
+        288
       ],
-      "id": "91e7ab52-d6c2-4333-8891-27fc67bd3e29",
+      "id": "feff9aea-5c1c-433a-8baf-293e52105afe",
       "name": "No Operation, do nothing2"
-    },
-    {
-      "parameters": {},
-      "type": "n8n-nodes-base.noOp",
-      "typeVersion": 1,
-      "position": [
-        896,
-        160
-      ],
-      "id": "52a20da5-f5d0-44f2-950b-83606bea2e6f",
-      "name": "No Operation, do nothing3"
-    },
-    {
-      "parameters": {},
-      "type": "n8n-nodes-base.noOp",
-      "typeVersion": 1,
-      "position": [
-        896,
-        -32
-      ],
-      "id": "4c409456-9efd-44dc-aa50-5cd2be7fd327",
-      "name": "No Operation, do nothing4"
     },
     {
       "parameters": {
@@ -1196,16 +1162,16 @@
       "type": "n8n-nodes-base.postgres",
       "typeVersion": 2.6,
       "position": [
-        2016,
-        672
+        2352,
+        480
       ],
-      "id": "1d87bad1-b551-4396-9dc1-e46a34232177",
+      "id": "3c5024ae-dbff-4cf6-898b-8aa1c63addca",
       "name": "Check for duplicate entry",
       "alwaysOutputData": true,
       "credentials": {
         "postgres": {
-          "id": "7IGpRF9xcH7oYorS",
-          "name": "Postgres account 2"
+          "id": "lVt5yKnqe6weOVkg",
+          "name": "Postgres account"
         }
       }
     },
@@ -1237,11 +1203,330 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.3,
       "position": [
-        2240,
+        2576,
+        480
+      ],
+      "id": "3c8394f2-8c81-4a83-8ca3-1114db427320",
+      "name": "If duplicate entry"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "schema": {
+          "__rl": true,
+          "mode": "list",
+          "value": "public"
+        },
+        "table": {
+          "__rl": true,
+          "value": "pending_sync",
+          "mode": "list",
+          "cachedResultName": "pending_sync"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "resolved": true,
+            "id": "={{ $('Select rows from a table').item.json.id }}",
+            "event_id": "={{ $('Select rows from a table').item.json.event_id }}"
+          },
+          "matchingColumns": [
+            "id",
+            "event_id"
+          ],
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "event_id",
+              "displayName": "event_id",
+              "required": true,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "service",
+              "displayName": "service",
+              "required": true,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "payload",
+              "displayName": "payload",
+              "required": true,
+              "defaultMatch": false,
+              "display": true,
+              "type": "object",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "error",
+              "displayName": "error",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "retry_count",
+              "displayName": "retry_count",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "resolved",
+              "displayName": "resolved",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "boolean",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "created_at",
+              "displayName": "created_at",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "dateTime",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "updated_at",
+              "displayName": "updated_at",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "dateTime",
+              "canBeUsedToMatch": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        784,
+        -128
+      ],
+      "id": "bae4f230-5239-4eae-a411-1328dec76381",
+      "name": "Update rows in a table1",
+      "credentials": {
+        "postgres": {
+          "id": "lVt5yKnqe6weOVkg",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "550ebd0e-7369-4083-abc6-9932d1783a8b",
+              "leftValue": "={{ $json.error !== (undefined || null) }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "exists",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        560,
+        -32
+      ],
+      "id": "05777cdb-6dd6-4b1e-a6be-7e268156cf5e",
+      "name": "If2"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "UPDATE pending_sync\nSET\n  retry_count = retry_count + 1,\n  updated_at = NOW(),\n  error = '{{ $json.error }}'\nWHERE event_id = '{{ $('Loop Over Items').item.json.event_id }}';",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        784,
+        64
+      ],
+      "id": "81971206-2f8d-4310-995b-76ffd3c87387",
+      "name": "Execute a SQL query",
+      "credentials": {
+        "postgres": {
+          "id": "lVt5yKnqe6weOVkg",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        -112,
+        -32
+      ],
+      "id": "1a2551a1-dade-46eb-b08c-dfeec792bd35",
+      "name": "Loop Over Items"
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "propertyName": "customer",
+        "key": "=customer_{{ $json.payload.data.object.customer }}",
+        "keyType": "string",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.redis",
+      "typeVersion": 1,
+      "position": [
+        336,
+        480
+      ],
+      "id": "68c9dce1-af19-4c2e-8393-f700de0d068e",
+      "name": "Redis",
+      "credentials": {
+        "redis": {
+          "id": "Uw0Zitr63BzM8wsF",
+          "name": "Redis account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "set",
+        "key": "=customer_{{ $json.id }}",
+        "value": "={{ JSON.stringify($json) }}",
+        "keyType": "string",
+        "expire": true,
+        "ttl": 60000000
+      },
+      "type": "n8n-nodes-base.redis",
+      "typeVersion": 1,
+      "position": [
+        1232,
+        480
+      ],
+      "id": "7073d24d-2525-4fdd-9733-98ea7e355ce3",
+      "name": "Redis1",
+      "credentials": {
+        "redis": {
+          "id": "Uw0Zitr63BzM8wsF",
+          "name": "Redis account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "cdb6adb9-2b67-43bf-a712-5e577db2163a",
+              "leftValue": "={{ $json.customer }}",
+              "rightValue": "",
+              "operator": {
+                "type": "object",
+                "operation": "exists",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        784,
+        480
+      ],
+      "id": "e8491fc9-c97b-4a8b-a75c-e71e8d9eddbb",
+      "name": "If1"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "40fa7e93-8037-45bd-8dd4-b3bbf761978e",
+              "name": "customer",
+              "value": "={{ JSON.parse($json[\"customer\"]) }}",
+              "type": "object"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        560,
+        480
+      ],
+      "id": "277cbe66-dcf4-4725-955f-e992ce4a69d5",
+      "name": "Edit Fields3"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        2352,
         672
       ],
-      "id": "30280304-8d96-4788-842b-7ce6c1225ffa",
-      "name": "If duplicate entry"
+      "id": "2de10bbb-cba6-4620-b609-f2999f8ea418",
+      "name": "No Operation, do nothing3"
     }
   ],
   "pinData": {},
@@ -1268,7 +1553,7 @@
       "main": [
         [
           {
-            "node": "Get customer details",
+            "node": "Redis",
             "type": "main",
             "index": 0
           }
@@ -1279,7 +1564,7 @@
       "main": [
         [
           {
-            "node": "Edit Fields2",
+            "node": "Redis1",
             "type": "main",
             "index": 0
           }
@@ -1349,8 +1634,7 @@
             "type": "main",
             "index": 0
           }
-        ],
-        []
+        ]
       ]
     },
     "If": {
@@ -1358,6 +1642,13 @@
         [
           {
             "node": "Check for duplicate entry",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "No Operation, do nothing3",
             "type": "main",
             "index": 0
           }
@@ -1401,7 +1692,7 @@
       "main": [
         [
           {
-            "node": "Switch",
+            "node": "Loop Over Items",
             "type": "main",
             "index": 0
           }
@@ -1424,11 +1715,6 @@
             "index": 0
           }
         ]
-      ]
-    },
-    "Insert failed node into DB for CRON retrying": {
-      "main": [
-        []
       ]
     },
     "Edit Fields2": {
@@ -1456,7 +1742,7 @@
       "main": [
         [
           {
-            "node": "No Operation, do nothing3",
+            "node": "If2",
             "type": "main",
             "index": 0
           }
@@ -1467,7 +1753,7 @@
       "main": [
         [
           {
-            "node": "No Operation, do nothing4",
+            "node": "If2",
             "type": "main",
             "index": 0
           }
@@ -1502,6 +1788,92 @@
           }
         ]
       ]
+    },
+    "If2": {
+      "main": [
+        [
+          {
+            "node": "Execute a SQL query",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Update rows in a table1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Redis": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Redis1": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If1": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields2",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Get customer details",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields3": {
+      "main": [
+        [
+          {
+            "node": "If1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     }
   },
   "active": true,
@@ -1510,16 +1882,17 @@
     "binaryMode": "separate",
     "availableInMCP": true,
     "timeSavedMode": "fixed",
-    "errorWorkflow": "ZRnr3_ysXKzYPFVDq1JEg",
+    "errorWorkflow": "jF76Rk1LW4tEp2MwCXLWa",
     "timezone": "Asia/Karachi",
     "callerPolicy": "workflowsFromSameOwner",
-    "timeSavedPerExecution": 10000
+    "executionTimeout": -1,
+    "timeSavedPerExecution": 15000000
   },
-  "versionId": "7566dfd9-e3fe-48a1-aef6-79a67f3a43a4",
+  "versionId": "508f6988-4ecf-43a9-a158-842775a69e36",
   "meta": {
     "templateCredsSetupCompleted": true,
-    "instanceId": "323338559e0a1761bdc2132527a39459f12d5075d40f1899b103cd2d72e82c4a"
+    "instanceId": "d96c7866164030ab7a67f779a3e598f5beae75620a505d152062e9e34f9ddd5c"
   },
-  "id": "KWwgFyOw3SANkR5sFGWul",
+  "id": "SsW2db8HIV7Np9OpasDUf",
   "tags": []
 }
